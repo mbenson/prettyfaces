@@ -1,0 +1,24 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+   xmlns:h="http://java.sun.com/jsf/html"
+   xmlns:f="http://java.sun.com/jsf/core">
+   <head>
+      <title>Action Page 1</title>
+   </head>
+   <h:body>
+    <h1>Page 1 (Form)</h1>
+    <h:form>
+      <h:outputLabel for="textValue" value="Enter value" />
+      <h:inputText id="textValue" value="#{pageOne.data.value}" />
+      <br />
+      <h:commandButton id="injectedPath_button" action="pretty:injectedPath" value="submit">
+        <f:param value="injectedPath_button" />
+      </h:commandButton>
+      <br />
+      <h:commandLink id="injectedPath_link" action="pretty:injectedPath" value="submit">
+        <f:param value="injectedPath_link" />
+      </h:commandLink>
+    </h:form>
+   </h:body>
+</html>

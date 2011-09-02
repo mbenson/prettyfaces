@@ -1,0 +1,17 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+   xmlns:h="http://java.sun.com/jsf/html"
+   xmlns:f="http://java.sun.com/jsf/core">
+   <head>
+      <title>Action Page 2</title>
+   </head>
+   <h:body>
+      <h1>Page 2 (Output)</h1>
+      <h:outputLabel for="textValue" value="Enter value" />
+      <h:outputText id="textValue" value="#{pageTwo.data.value}" />
+      <br />
+      <h:outputLabel for="parameter" value="Parameter value" />
+      <h:outputText id="parameter" value="#{pageTwo.param}" />
+   </h:body>
+</html>
