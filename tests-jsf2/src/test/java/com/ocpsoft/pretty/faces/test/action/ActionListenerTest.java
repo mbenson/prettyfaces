@@ -18,47 +18,41 @@ package com.ocpsoft.pretty.faces.test.action;
 
 import static org.junit.Assert.assertEquals;
 
-import javax.faces.context.FacesContext;
-
-import org.jboss.arquillian.MavenArtifactResolver;
 import org.jboss.arquillian.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.jsfunit.jsfsession.JSFClientSession;
 import org.jboss.jsfunit.jsfsession.JSFServerSession;
 import org.jboss.jsfunit.jsfsession.JSFSession;
-import org.jboss.shrinkwrap.api.Archive;
-import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.ocpsoft.pretty.PrettyContext;
 import com.ocpsoft.pretty.faces.test.MetasyntacticVariable;
+import com.ocpsoft.pretty.faces.test.PrettyFacesTestBase;
 
 @RunWith(Arquillian.class)
 public class ActionListenerTest
 {
    @Deployment
-   public static Archive<?> createDeployment()
+   public static WebArchive createDeployment()
    {
-      return ShrinkWrap.create(WebArchive.class, "test.war")
+      return PrettyFacesTestBase.createDeployment()
                .addResource("action/page1.xhtml", "page1.xhtml")
                .addResource("action/page2.xhtml", "page2.xhtml")
                .addClasses(DataBean.class, PageOne.class, PageTwo.class, MetasyntacticVariable.class)
-               .addWebResource("faces-config.xml")
-               .addWebResource("pretty-config.xml")
-               .addLibrary(MavenArtifactResolver.resolve(
-                        "com.ocpsoft:prettyfaces-jsf2:3.3.1-SNAPSHOT"))
-               .setWebXML("jsf-web.xml");
+               .addWebResource("pretty-config.xml");
    }
 
    private JSFSession jsfSession;
    private JSFServerSession server;
    private JSFClientSession client;
 
-   @Before
-   public void pageOne() throws Exception {
+   /**
+    * Cannot be done using a @Before annotation because JSFUnit setup is not fully available
+    * @throws Exception
+    */
+   private void pageOneSetup() throws Exception {
       jsfSession = new JSFSession("/home");
       server = jsfSession.getJSFServerSession();
       client = jsfSession.getJSFClientSession();
@@ -77,6 +71,8 @@ public class ActionListenerTest
 
    @Test
    public void testBasicPathParameterAction() throws Exception {
+      pageOneSetup();
+
       client.click("button");
       assertDestination("injectedPath");
       assertEquals("button", server.getManagedBeanValue("#{pageTwo.paramString}"));
