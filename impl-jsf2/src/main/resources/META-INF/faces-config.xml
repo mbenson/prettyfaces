@@ -16,6 +16,10 @@
 	<application>
 		<view-handler>com.ocpsoft.pretty.faces.application.PrettyViewHandler</view-handler>
 		<navigation-handler>com.ocpsoft.pretty.faces.application.PrettyNavigationHandler</navigation-handler>
+		<system-event-listener>
+			<system-event-listener-class>com.ocpsoft.pretty.faces.event.PrettyActionListener$Install</system-event-listener-class>
+			<system-event-class>javax.faces.event.PostConstructApplicationEvent</system-event-class>
+		</system-event-listener>
 	</application>
 
 	<lifecycle>
