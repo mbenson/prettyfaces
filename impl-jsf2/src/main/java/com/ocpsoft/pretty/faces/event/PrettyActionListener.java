@@ -37,17 +37,18 @@ import javax.faces.event.SystemEvent;
 import javax.faces.event.SystemEventListener;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.ocpsoft.pretty.PrettyContext;
 import com.ocpsoft.pretty.faces.config.mapping.PathParameter;
 import com.ocpsoft.pretty.faces.config.mapping.QueryParameter;
 import com.ocpsoft.pretty.faces.config.mapping.RequestParameter;
 import com.ocpsoft.pretty.faces.config.mapping.UrlMapping;
-import com.ocpsoft.pretty.faces.servlet.PrettyFacesWrappedRequest;
 import com.ocpsoft.pretty.faces.util.FacesElUtils;
 import com.ocpsoft.pretty.faces.util.NullComponent;
 import com.ocpsoft.pretty.faces.util.PrettyURLBuilder;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.ocpsoft.rewrite.servlet.impl.HttpRewriteWrappedRequest;
 
 /**
  * Handles JSF UICommand actions that point to pretty mappings. Specifically
@@ -251,7 +252,7 @@ public class PrettyActionListener implements ActionListener {
             }
             if (!additionalRequestParameters.isEmpty()) {
                 context.getExternalContext().setRequest(
-                    new PrettyFacesWrappedRequest((HttpServletRequest) context.getExternalContext().getRequest(),
+                    new HttpRewriteWrappedRequest((HttpServletRequest) context.getExternalContext().getRequest(),
                         additionalRequestParameters));
             }
         }
