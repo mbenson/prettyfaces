@@ -21,9 +21,7 @@ import java.io.InputStream;
 
 import javax.servlet.ServletContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import com.ocpsoft.logging.Logger;
 import com.ocpsoft.pretty.PrettyException;
 import com.ocpsoft.pretty.faces.config.JAXBPrettyConfigParser;
 import com.ocpsoft.pretty.faces.config.PrettyConfig;
@@ -37,11 +35,11 @@ import com.ocpsoft.pretty.faces.spi.ConfigurationProvider;
  */
 public class DefaultXMLConfigurationProvider implements ConfigurationProvider
 {
-   private static final Log log = LogFactory.getLog(DefaultXMLConfigurationProvider.class);
+   private static final Logger log = Logger.getLogger(DefaultXMLConfigurationProvider.class);
 
    public static final String DEFAULT_PRETTY_FACES_CONFIG = "/WEB-INF/pretty-config.xml";
 
-   public PrettyConfig loadConfiguration(ServletContext servletContext)
+   public PrettyConfig loadConfiguration(final ServletContext servletContext)
    {
       final PrettyConfigBuilder builder = new PrettyConfigBuilder();
       PrettyConfigParser configParser = new JAXBPrettyConfigParser(servletContext);
@@ -56,7 +54,8 @@ public class DefaultXMLConfigurationProvider implements ConfigurationProvider
          }
          catch (Exception e)
          {
-            throw new PrettyException("Failed to parse PrettyFaces configuration from " + DEFAULT_PRETTY_FACES_CONFIG, e);
+            throw new PrettyException("Failed to parse PrettyFaces configuration from " + DEFAULT_PRETTY_FACES_CONFIG,
+                     e);
          }
          finally
          {
@@ -65,8 +64,7 @@ public class DefaultXMLConfigurationProvider implements ConfigurationProvider
                is.close();
             }
             catch (IOException ignored)
-            {
-            }
+            {}
          }
       }
 

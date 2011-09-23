@@ -78,37 +78,45 @@ public class PrettyPhaseListener implements PhaseListener
    {
       if (PhaseId.RESTORE_VIEW.equals(event.getPhaseId()))
       {
-         // TODO Test that validation occurs before injection
+         PrettyContext prettyContext = PrettyContext.getCurrentInstance(event.getFacesContext());
+         boolean dynaviewViewDetermination = prettyContext.shouldProcessDynaview();
+
          /*
-          * Parameter validation and injection must occur after RESTORE_VIEW in order to participate in
-          * faces-navigation.
+          * Validate and inject path/query parameter if one of these conditions is met:
+          *   - The 'responseComplete' flag is not set (normal mapped request)
+          *   - we must evaluate the view id for a dynaview request (responseComplete is set!!!)
           */
-         if (!event.getFacesContext().getResponseComplete())
+         if (!event.getFacesContext().getResponseComplete() || dynaviewViewDetermination)
          {
-            // run parameter validation
+
+            // run the parameter validation before the injection
             validator.validateParameters(event.getFacesContext());
 
-            // abort if validation failed, 404 response code has already been set
-            if (event.getFacesContext().getResponseComplete())
+            // abort if validation failed (404 response code has already been set)
+            if (event.getFacesContext().getResponseComplete() && !dynaviewViewDetermination)
             {
                return;
             }
 
-            // inject parameters
+            // validation was successful, now inject the parameters
             injector.injectParameters(event.getFacesContext());
+
          }
 
-         PrettyContext prettyContext = PrettyContext.getCurrentInstance(event.getFacesContext());
-         if (prettyContext.shouldProcessDynaview())
+         // perform dynaview view determination
+         if (dynaviewViewDetermination)
          {
             dynaview.processDynaView(prettyContext, event.getFacesContext());
          }
+         
+         // try to restore messages
          else if (!event.getFacesContext().getResponseComplete())
          {
             FacesContext context = event.getFacesContext();
             messagesUtils.restoreMessages(context, context.getExternalContext().getRequestMap());
             processEvent(event);
          }
+
       }
    }
 

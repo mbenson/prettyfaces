@@ -17,9 +17,8 @@ package com.ocpsoft.pretty.faces.config;
 
 import javax.servlet.ServletContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import com.ocpsoft.common.services.ServiceLoader;
+import com.ocpsoft.logging.Logger;
 import com.ocpsoft.pretty.PrettyContext;
 import com.ocpsoft.pretty.PrettyException;
 import com.ocpsoft.pretty.faces.config.dynaview.DynaviewEngine;
@@ -28,7 +27,6 @@ import com.ocpsoft.pretty.faces.config.spi.ParentingPostProcessor;
 import com.ocpsoft.pretty.faces.config.spi.ValidatingPostProcessor;
 import com.ocpsoft.pretty.faces.spi.ConfigurationPostProcessor;
 import com.ocpsoft.pretty.faces.spi.ConfigurationProvider;
-import com.ocpsoft.pretty.faces.util.ServiceLoader;
 
 /**
  * @author <a href="mailto:lincolnbaxter@gmail.com>Lincoln Baxter, III</a>
@@ -37,7 +35,7 @@ import com.ocpsoft.pretty.faces.util.ServiceLoader;
 public class PrettyConfigurator
 {
 
-   private static final Log log = LogFactory.getLog(PrettyConfigurator.class);
+   private static final Logger log = Logger.getLogger(PrettyConfigurator.class);
 
    private final ServletContext servletContext;
 

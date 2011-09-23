@@ -27,9 +27,7 @@ import javax.faces.validator.Validator;
 import javax.faces.validator.ValidatorException;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import com.ocpsoft.logging.Logger;
 import com.ocpsoft.pretty.PrettyContext;
 import com.ocpsoft.pretty.PrettyException;
 import com.ocpsoft.pretty.faces.config.mapping.PathParameter;
@@ -45,7 +43,7 @@ import com.ocpsoft.pretty.faces.util.NullComponent;
  */
 public class ParameterValidator
 {
-   private static final Log log = LogFactory.getLog(ParameterInjector.class);
+   private static final Logger log = Logger.getLogger(ParameterInjector.class);
    private static final FacesElUtils elUtils = new FacesElUtils();
 
    public void validateParameters(final FacesContext context)
@@ -77,7 +75,7 @@ public class ParameterValidator
 
             List<PathValidator> validators = mapping.getValidatorsForPathParam(param);
 
-            if (validators != null && validators.size() > 0)
+            if ((validators != null) && (validators.size() > 0))
             {
                String value = param.getValue();
                Object coerced = elUtils.coerceToType(context, param.getExpression().getELExpression(), value);

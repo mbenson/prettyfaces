@@ -21,9 +21,7 @@ import java.util.List;
 
 import javax.servlet.ServletContext;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import com.ocpsoft.logging.Logger;
 import com.ocpsoft.pretty.faces.config.PrettyConfig;
 import com.ocpsoft.pretty.faces.config.PrettyConfigBuilder;
 import com.ocpsoft.pretty.faces.config.annotation.ClassFinder;
@@ -40,12 +38,12 @@ import com.ocpsoft.pretty.faces.spi.ConfigurationProvider;
  */
 public class AnnotationConfigurationProvider implements ConfigurationProvider
 {
-   private static final Log log = LogFactory.getLog(AnnotationConfigurationProvider.class);
+   private static final Logger log = Logger.getLogger(AnnotationConfigurationProvider.class);
 
    public static final String CONFIG_SCAN_LIB_DIR = "com.ocpsoft.pretty.SCAN_LIB_DIRECTORY";
    public static final String CONFIG_BASE_PACKAGES = "com.ocpsoft.pretty.BASE_PACKAGES";
 
-   public PrettyConfig loadConfiguration(ServletContext servletContext)
+   public PrettyConfig loadConfiguration(final ServletContext servletContext)
    {
       String packageFilters = servletContext.getInitParameter(CONFIG_BASE_PACKAGES);
 
