@@ -87,6 +87,7 @@ public class PrettyActionListener implements ActionListener {
     private static final Log LOG = LogFactory.getLog(PrettyActionListener.class);
     private static final FacesElUtils EL_UTILS = new FacesElUtils();
     private static final PrettyURLBuilder URL_BUILDER = new PrettyURLBuilder();
+    private static final Pattern HAS_REGEX_SPECIAL = Pattern.compile("(?<!\\\\)[\\^\\[\\]\\.\\$\\{\\}\\*\\(\\)\\\\\\+\\|\\?\\<\\>]");
 
     private final ActionListener delegate;
 
@@ -260,7 +261,7 @@ public class PrettyActionListener implements ActionListener {
         private static boolean hasLiteralRegex(RequestParameter param) {
             if (param instanceof PathParameter) {
                 String regex = ((PathParameter) param).getRegex();
-                return regex != null && regex.equals(Pattern.quote(regex));
+                return regex != null && !HAS_REGEX_SPECIAL.matcher(regex).find();
             }
             return false;
         }
