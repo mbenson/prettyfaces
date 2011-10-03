@@ -27,11 +27,13 @@ import com.ocpsoft.pretty.faces.annotation.URLAction;
 import com.ocpsoft.pretty.faces.annotation.URLAction.PhaseId;
 import com.ocpsoft.pretty.faces.annotation.URLActions;
 import com.ocpsoft.pretty.faces.annotation.URLBeanName;
+import com.ocpsoft.pretty.faces.annotation.URLConverter;
 import com.ocpsoft.pretty.faces.annotation.URLMapping;
 import com.ocpsoft.pretty.faces.annotation.URLMappings;
 import com.ocpsoft.pretty.faces.annotation.URLQueryParameter;
 import com.ocpsoft.pretty.faces.annotation.URLValidator;
 import com.ocpsoft.pretty.faces.config.PrettyConfigBuilder;
+import com.ocpsoft.pretty.faces.config.mapping.PathConverter;
 import com.ocpsoft.pretty.faces.config.mapping.PathValidator;
 import com.ocpsoft.pretty.faces.config.mapping.QueryParameter;
 import com.ocpsoft.pretty.faces.config.mapping.UrlAction;
@@ -40,8 +42,9 @@ import com.ocpsoft.pretty.faces.el.ConstantExpression;
 import com.ocpsoft.pretty.faces.el.LazyBeanNameFinder;
 import com.ocpsoft.pretty.faces.el.LazyExpression;
 import com.ocpsoft.pretty.faces.el.PrettyExpression;
+import com.ocpsoft.pretty.faces.util.StringUtils;
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class PrettyAnnotationHandler
 {
 
@@ -239,6 +242,28 @@ public class PrettyAnnotationHandler
          mapping.getPathValidators().add(pathValidator);
 
       }
+      
+      // process converters
+      for (URLConverter converterAnnotation : mappingAnnotation.converter())
+      {
+         
+         // index attribute is required in this case
+         if (converterAnnotation.index() < 0)
+         {
+            throw new IllegalArgumentException(
+                     "Please set the index of the path parameter you want to convert with the @URLConverter specified on mapping: "
+                              + mapping.getId());
+         }
+         
+         // prepare PathValidator
+         PathConverter pathConverter = new PathConverter();
+         pathConverter.setIndex(converterAnnotation.index());
+         pathConverter.setConverterId(StringUtils.trimToNull(converterAnnotation.converterId()));
+         
+         // add PathValidator to the mapping
+         mapping.addPathConverter(pathConverter);
+         
+      }
 
       // return mapping id
       return mapping.getId().trim();
@@ -354,6 +379,12 @@ public class PrettyAnnotationHandler
             queryParam.setValidator(validationAnnotation.validator());
 
          }
+         
+         // check if there is also a converter annotation placed on the field
+         URLConverter converterAnnotation = field.getAnnotation(URLConverter.class);
+         if (converterAnnotation != null) {
+            queryParam.setConverterId(converterAnnotation.converterId().trim());
+         }
 
          // add the new spec object to the list of specs
          queryParamList.add(queryParam);
@@ -377,6 +408,7 @@ public class PrettyAnnotationHandler
       ActionSpec actionSpec = new ActionSpec();
       actionSpec.setMethod(method);
       actionSpec.setOnPostback(actionAnnotation.onPostback());
+      actionSpec.setInheritable(actionAnnotation.inheritable());
       actionSpec.setPhaseId(actionAnnotation.phaseId());
 
       // check which mapping the action belongs to
@@ -452,6 +484,7 @@ public class PrettyAnnotationHandler
             UrlAction urlAction = new UrlAction();
             urlAction.setPhaseId(actionSpec.getPhaseId());
             urlAction.setOnPostback(actionSpec.isOnPostback());
+            urlAction.setInheritable(actionSpec.isInheritable());
 
             // try to get bean name
             Class clazz = actionSpec.getMethod().getDeclaringClass();
@@ -494,6 +527,7 @@ public class PrettyAnnotationHandler
             QueryParameter queryParam = new QueryParameter();
             queryParam.setName(queryParamSpec.getName());
             queryParam.setOnError(queryParamSpec.getOnError());
+            queryParam.setConverterId(StringUtils.trimToNull(queryParamSpec.getConverterId()));
             queryParam.setValidatorIds(join(queryParamSpec.getValidatorIds(), " "));
             queryParam.setOnPostback(queryParamSpec.isOnPostback());
 
@@ -613,6 +647,7 @@ public class PrettyAnnotationHandler
       private boolean onPostback;
       private PhaseId phaseId;
       private String[] mappingIds;
+      private boolean inheritable;
 
       public boolean isOnPostback()
       {
@@ -654,6 +689,16 @@ public class PrettyAnnotationHandler
          this.mappingIds = mappingIds;
       }
 
+      public boolean isInheritable()
+      {
+         return inheritable;
+      }
+
+      public void setInheritable(boolean inheritable)
+      {
+         this.inheritable = inheritable;
+      }
+
    }
 
    /**
@@ -668,6 +713,7 @@ public class PrettyAnnotationHandler
       private String[] mappingIds;
       private String name;
       private String onError;
+      private String converterId;
       private String[] validatorIds = {};
       private String validator;
       private boolean onPostback;
@@ -750,6 +796,16 @@ public class PrettyAnnotationHandler
       public void setMappingIds(final String[] mappingIds)
       {
          this.mappingIds = mappingIds;
+      }
+
+      public String getConverterId()
+      {
+         return converterId;
+      }
+
+      public void setConverterId(String converterId)
+      {
+         this.converterId = converterId;
       }
    }
 

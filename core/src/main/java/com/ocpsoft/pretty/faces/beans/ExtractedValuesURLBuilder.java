@@ -20,7 +20,6 @@ import java.util.List;
 
 import javax.el.ELException;
 import javax.faces.context.FacesContext;
-import javax.faces.convert.Converter;
 
 import com.ocpsoft.pretty.PrettyException;
 import com.ocpsoft.pretty.faces.config.mapping.PathParameter;
@@ -30,7 +29,6 @@ import com.ocpsoft.pretty.faces.url.QueryString;
 import com.ocpsoft.pretty.faces.url.URL;
 import com.ocpsoft.pretty.faces.url.URLPatternParser;
 import com.ocpsoft.pretty.faces.util.FacesElUtils;
-import com.ocpsoft.pretty.faces.util.NullComponent;
 
 /**
  * @author Lincoln Baxter, III <lincoln@ocpsoft.com>
@@ -70,22 +68,16 @@ public class ExtractedValuesURLBuilder
                         + mapping.getId() + " >, Required value " + " < " + expression + " > was null");
             }
 
-            // convert the value to a string using the correct converter
-            Converter converter = context.getApplication().createConverter(value.getClass());
-            if (converter != null)
+            // convert the value to the corresponding string
+            ParameterConverter converter = new ParameterConverter(context, mapping, injection);
+            String valueAsString = converter.getAsString(value);
+            if (valueAsString == null)
             {
-               String valueAsString = converter.getAsString(context, new NullComponent(), value);
-               if (valueAsString == null)
-               {
-                  throw new PrettyException("PrettyFaces: The converter <" + converter.getClass().getName()
-                        + "> returned null while converting the object <" + value.toString() + ">!");
-               }
-               parameterValues.add(valueAsString);
+               throw new PrettyException("PrettyFaces: The converter returned null while converting the object <"
+                        + value.toString() + ">!");
             }
-            else
-            {
-               parameterValues.add(value.toString());
-            }
+            
+            parameterValues.add(valueAsString);
             
          }
 
@@ -117,6 +109,7 @@ public class ExtractedValuesURLBuilder
          for (QueryParameter injection : queryParams)
          {
             String name = injection.getName();
+            ParameterConverter converter = new ParameterConverter(context, injection);
 
             expression = injection.getExpression().getELExpression();
             value = elUtils.getValue(context, expression);
@@ -128,12 +121,12 @@ public class ExtractedValuesURLBuilder
                   Object[] values = (Object[]) value;
                   for (Object temp : values)
                   {
-                     queryParameterValues.add(new QueryParameter(name, temp.toString()));
+                     queryParameterValues.add(new QueryParameter(name, converter.getAsString(temp)));
                   }
                }
                else
                {
-                  queryParameterValues.add(new QueryParameter(name, value.toString()));
+                  queryParameterValues.add(new QueryParameter(name, converter.getAsString(value)));
                }
             }
          }

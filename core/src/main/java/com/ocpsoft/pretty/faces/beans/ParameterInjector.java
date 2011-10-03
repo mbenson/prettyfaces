@@ -18,7 +18,6 @@ package com.ocpsoft.pretty.faces.beans;
 import java.util.List;
 
 import javax.faces.context.FacesContext;
-import javax.faces.convert.Converter;
 
 import com.ocpsoft.logging.Logger;
 import com.ocpsoft.pretty.PrettyContext;
@@ -30,7 +29,6 @@ import com.ocpsoft.pretty.faces.url.QueryString;
 import com.ocpsoft.pretty.faces.url.URL;
 import com.ocpsoft.pretty.faces.util.FacesElUtils;
 import com.ocpsoft.pretty.faces.util.FacesStateUtils;
-import com.ocpsoft.pretty.faces.util.NullComponent;
 
 /**
  * @author Lincoln Baxter, III <lincoln@ocpsoft.com>
@@ -69,25 +67,19 @@ public class ParameterInjector
          String el = param.getExpression().getELExpression();
          if ((el != null) && !"".equals(el.trim()))
          {
-            String valueAsString = param.getValue();
             try
             {
 
-               // get the type of the referenced property and try to obtain a converter for it
+               // we may need the type of the referenced property
                Class<?> expectedType = elUtils.getExpectedType(context, el);
-               Converter converter = context.getApplication().createConverter(expectedType);
-
-               // Use the convert to create the correct type
-               if (converter != null)
-               {
-                  Object convertedValue = converter.getAsObject(context, new NullComponent(), valueAsString);
-                  elUtils.setValue(context, el, convertedValue);
-               }
-               else
-               {
-                  elUtils.setValue(context, el, valueAsString);
-               }
-
+               
+               // perform conversion
+               ParameterConverter converter = new ParameterConverter(context, mapping, param);
+               Object convertedValue = converter.getAsObject(expectedType, param.getValue());
+               
+               // write the property
+               elUtils.setValue(context, el, convertedValue);
+               
             }
             catch (Exception e)
             {
@@ -120,7 +112,12 @@ public class ParameterInjector
             {
                try
                {
-                  if (elUtils.getExpectedType(context, el).isArray())
+
+                  // we may need the type of the referenced property
+                  Class<?> expectedType = elUtils.getExpectedType(context, el);
+
+                  // we support only String arrays at the moment
+                  if (expectedType.isArray())
                   {
                      String[] values = queryString.getParameterValues(name);
                      elUtils.setValue(context, el, values);
@@ -128,22 +125,15 @@ public class ParameterInjector
                   else
                   {
 
+                     // we process only one occurrence of the query parameter here
                      String valueAsString = queryString.getParameter(name);
+                     
+                     // perform conversion
+                     ParameterConverter converter = new ParameterConverter(context, param);
+                     Object convertedValue = converter.getAsObject(expectedType, valueAsString);
 
-                     // get the type of the referenced property and try to obtain a converter for it
-                     Class<?> expectedType = elUtils.getExpectedType(context, el);
-                     Converter converter = context.getApplication().createConverter(expectedType);
-
-                     // Use the convert to create the correct type
-                     if (converter != null)
-                     {
-                        Object convertedValue = converter.getAsObject(context, new NullComponent(), valueAsString);
-                        elUtils.setValue(context, el, convertedValue);
-                     }
-                     else
-                     {
-                        elUtils.setValue(context, el, valueAsString);
-                     }
+                     // write the property
+                     elUtils.setValue(context, el, convertedValue);
 
                   }
                }
