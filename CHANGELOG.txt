@@ -11,6 +11,13 @@ Regression Impact:
  Search: <view-id>\s*([^<]+?)\s*</view-id>
  Replace: <view-id value="$1" />
  
+------------------------------------
+           VERSION 3.3.3
+------------------------------------
+
+Bugfixes:
+* Fixed potential NullPointerException in annotation scanning code 
+* Fixed PrettyContext.JSESSIONID_REGEX to support clustered session IDs
 
 ------------------------------------
            VERSION 3.3.1
